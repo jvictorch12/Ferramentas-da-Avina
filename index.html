@@ -11,6 +11,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Avina">
     <title>Calculadora Multi-Produtos - Avina</title>
+    <!-- Biblioteca ExcelJS: gera .xlsx nativo oficial com suporte completo a cores, bordas e fontes -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <style>
         @font-face {
             font-family: 'Safira March Personal';
@@ -715,7 +717,7 @@
         atualizarTabela();
     }
 
-    function exportarExcel() {
+    async function exportarExcel() {
         if (listaProdutos.length === 0) {
             alert("Não há produtos cadastrados para exportar.");
             return;
@@ -725,96 +727,104 @@
         const dia = String(hoje.getDate()).padStart(2, '0');
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         const ano = hoje.getFullYear();
-        const dataFormatada = `${dia}-${mes}-${ano}`;
-        const nomeArquivo = `Precificação de Peças - ${dataFormatada}.xls`;
+        const nomeArquivo = `Precificação de Peças - ${dia}-${mes}-${ano}.xlsx`;
 
-        let excelXML = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head>
-                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-                <!--[if gte mso 9]>
-                <xml>
-                    <x:ExcelWorkbook>
-                        <x:ExcelWorksheets>
-                            <x:ExcelWorksheet>
-                                <x:Name>Precificação de Peças</x:Name>
-                                <x:WorksheetOptions>
-                                    <x:DisplayGridlines/>
-                                </x:WorksheetOptions>
-                            </x:ExcelWorksheet>
-                        </x:ExcelWorksheets>
-                    </x:ExcelWorkbook>
-                </xml>
-                <![endif]-->
-                <style>
-                    table { border-collapse: collapse; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; }
-                    th { 
-                        background-color: #523f31; 
-                        color: #ffffff; 
-                        font-weight: bold; 
-                        border: 1px solid #3c2d22; 
-                        padding: 8px 12px; 
-                        text-align: center; 
-                    }
-                    td { 
-                        border: 1px solid #dcd5cc; 
-                        padding: 6px 10px; 
-                        color: #333333; 
-                    }
-                    .texto { mso-number-format:'\\@'; text-align: left; font-weight: bold; }
-                    .moeda { mso-number-format:'"R$"\\ #\\,##0\\.00'; text-align: right; }
-                    .porcento { mso-number-format:'0\\.00%'; text-align: right; }
-                </style>
-            </head>
-            <body>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produto</th>
-                            <th>Peça</th>
-                            <th>Embalagem</th>
-                            <th>Frete</th>
-                            <th>Taxa Cartão</th>
-                            <th>Lucro Desejado</th>
-                            <th>Valor de Venda</th>
-                            <th>Lucro (R$)</th>
-                            <th>Lucro Real (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
+        // 1. Cria a Pasta de Trabalho no ExcelJS
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Precificação de Peças');
 
-        listaProdutos.forEach(prod => {
-            excelXML += `
-                <tr>
-                    <td class="texto">${prod.nome}</td>
-                    <td class="moeda">${prod.pecaNum.toFixed(2).replace('.', ',')}</td>
-                    <td class="moeda">${prod.embNum.toFixed(2).replace('.', ',')}</td>
-                    <td class="moeda">${prod.freteNum.toFixed(2).replace('.', ',')}</td>
-                    <td class="porcento">${(prod.maqNum * 100).toFixed(2).replace('.', ',')}%</td>
-                    <td class="porcento">${(prod.lucroDesejNum * 100).toFixed(2).replace('.', ',')}%</td>
-                    <td class="moeda" style="font-weight: bold;">${prod.vendaNum.toFixed(2).replace('.', ',')}</td>
-                    <td class="moeda" style="color: #006400; font-weight: bold;">${prod.lucroRsNum.toFixed(2).replace('.', ',')}</td>
-                    <td class="porcento" style="color: #006400; font-weight: bold;">${(prod.lucroPercNum * 100).toFixed(2).replace('.', ',')}%</td>
-                </tr>
-            `;
+        // 2. Define as Colunas com largura ideal para não cortar o texto
+        worksheet.columns = [
+            { header: 'Produto', key: 'produto', width: 22 },
+            { header: 'Peça', key: 'peca', width: 14 },
+            { header: 'Embalagem', key: 'embalagem', width: 14 },
+            { header: 'Frete', key: 'frete', width: 14 },
+            { header: 'Taxa Cartão', key: 'taxa', width: 16 },
+            { header: 'Lucro Desejado', key: 'lucro_desejado', width: 18 },
+            { header: 'Valor de Venda', key: 'venda', width: 18 },
+            { header: 'Lucro (R$)', key: 'lucro_rs', width: 16 },
+            { header: 'Lucro Real (%)', key: 'lucro_perc', width: 16 }
+        ];
+
+        // 3. Estiliza o Cabeçalho (Marrom Avina #523F31, texto branco, negrito, centralizado)
+        const headerRow = worksheet.getRow(1);
+        headerRow.height = 28;
+        headerRow.eachCell((cell) => {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF523F31' }
+            };
+            cell.font = {
+                name: 'Calibri',
+                size: 11,
+                bold: true,
+                color: { argb: 'FFFFFFFF' }
+            };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            cell.border = {
+                top: { style: 'thin', color: { argb: 'FF000000' } },
+                left: { style: 'thin', color: { argb: 'FF000000' } },
+                bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                right: { style: 'thin', color: { argb: 'FF000000' } }
+            };
         });
 
-        excelXML += `
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
+        // 4. Formato oficial de Moeda Brasileira para o Excel
+        const formatoMoeda = '"R$"\\ #,##0.00';
+        const formatoPorcento = '0.00%';
 
-        const blob = new Blob([excelXML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        // 5. Insere os dados com bordas pretas e alinhamentos
+        listaProdutos.forEach(prod => {
+            const row = worksheet.addRow({
+                produto: prod.nome,
+                peca: prod.pecaNum,
+                embalagem: prod.embNum,
+                frete: prod.freteNum,
+                taxa: prod.maqNum,
+                lucro_desejado: prod.lucroDesejNum,
+                venda: prod.vendaNum,
+                lucro_rs: prod.lucroRsNum,
+                lucro_perc: prod.lucroPercNum
+            });
+
+            row.height = 22;
+
+            row.eachCell((cell, colNumber) => {
+                // Bordas em todas as células de dados
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FF000000' } },
+                    left: { style: 'thin', color: { argb: 'FF000000' } },
+                    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                    right: { style: 'thin', color: { argb: 'FF000000' } }
+                };
+
+                cell.font = { name: 'Calibri', size: 11 };
+
+                // Alinhamento e máscaras numéricas
+                if (colNumber === 1) {
+                    cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                } else if ([2, 3, 4, 7, 8].includes(colNumber)) {
+                    cell.numFmt = formatoMoeda;
+                    cell.alignment = { vertical: 'middle', horizontal: 'right' };
+                } else if ([5, 6, 9].includes(colNumber)) {
+                    cell.numFmt = formatoPorcento;
+                    cell.alignment = { vertical: 'middle', horizontal: 'right' };
+                }
+            });
+        });
+
+        // 6. Gera o arquivo binário .xlsx e dispara o download
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", nomeArquivo);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomeArquivo;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     window.addEventListener('load', calcular);
