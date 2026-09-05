@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <!-- Garante que a página se ajuste perfeitamente à tela do celular sem zoom automático indesejado -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Ícone do aplicativo / Favicon otimizado para todos os navegadores e iOS -->
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1FH7yT_QPjzx5d6LmSXo_wPwiuUbJeqoc">
+    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1FH7yT_QPjzx5d6LmSXo_wPwiuUbJeqoc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Avina">
+    <title>Calculadora de Precificação - Avina</title>
+    <style>
+        /* Importação e suporte universal à fonte Safira March Personal */
+        @font-face {
+            font-family: 'Safira March Personal';
+            src: local('Safira March Personal'),
+                 local('SafiraMarchPersonal'),
+                 local('Safira March'),
+                 url('SafiraMarchPersonal.otf') format('opentype'),
+                 url('SafiraMarchPersonal.ttf') format('truetype'),
+                 url('safira-march.otf') format('opentype'),
+                 url('safira-march.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        :root {
+            /* Paleta de cores oficial da identidade visual Avina */
+            --avina-dark: #523f31;    /* Marrom escuro principal */
+            --avina-medium: #856f56;  /* Tom intermediário */
+            --avina-accent: #b79f7b;  /* Tom de destaque quente */
+            --avina-light: #c6bdae;   /* Neutro claro de fundo */
+            --avina-bg: #f5f3f0;      /* Fundo geral da página */
+            --avina-white: #ffffff;   /* Branco puro */
+            
+            /* Cores indicativas para campos e resultados */
+            --teste-red: #8b0000;   /* Vermelho escuro para entradas/custos */
+            --teste-green: #006400; /* Verde escuro para lucros */
+
+            /* Tipografia unificada */
+            --fonte-principal: 'Safira March Personal', 'Georgia', serif;
+            --fonte-numeros: 'Georgia', 'Segoe UI', serif;
+        }
+
+        /* Estrutura estritamente vertical em coluna única para evitar que itens fiquem lado a lado */
+        body {
+            font-family: var(--fonte-principal);
+            background-color: var(--avina-bg);
+            color: var(--avina-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 12px 50px 12px;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* Cartão principal centralizado com largura otimizada para mobile e desktop */
+        .container {
+            background-color: var(--avina-white);
+            padding: 30px 22px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(82, 63, 49, 0.15); 
+            max-width: 440px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Cabeçalho com logo centralizada */
+        .header-container {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .logo-img {
+            max-width: 135px; 
+            max-height: 110px;
+            width: auto;
+            height: auto;
+            margin: 0 auto 12px auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-family: var(--fonte-principal);
+            font-size: 1.15em;
+            color: var(--avina-dark);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            white-space: nowrap; /* Mantém o título estritamente em uma única linha */
+        }
+
+        /* Títulos de seção com linha divisória estilizada */
+        .section-title {
+            font-family: var(--fonte-principal);
+            font-weight: 800;
+            font-size: 1.2em;
+            margin-top: 24px;
+            margin-bottom: 14px;
+            border-bottom: 3px solid var(--avina-accent);
+            padding-bottom: 4px;
+            color: var(--avina-dark);
+            letter-spacing: 0.5px;
+        }
+
+        /* Organização das linhas de formulário (Rótulo + Campo) */
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            flex: 1;
+            font-family: var(--fonte-principal);
+            font-size: 1.05em;
+            font-weight: 600;
+            color: var(--avina-medium); 
+        }
+
+        /* Moldura elegante para as caixas de número */
+        .input-wrapper {
+            flex: 0.68;
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--avina-light);
+            border-radius: 6px;
+            background-color: var(--avina-white);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--avina-medium);
+            box-shadow: 0 0 0 3px rgba(133, 111, 86, 0.2);
+        }
+
+        .input-wrapper input {
+            -webkit-appearance: none; /* Remove estilos padrão do Safari iOS */
+            -moz-appearance: none;
+            appearance: none;
+            flex: 1;
+            border: none;
+            padding: 9px 8px;
+            text-align: right;
+            font-family: var(--fonte-numeros);
+            font-variant-numeric: lining-nums tabular-nums; /* Alinha os números de forma uniforme */
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--teste-red); 
+            outline: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        /* Estilização dos prefixos (R$) e sufixos (%) embutidos */
+        .prefix, .suffix {
+            background-color: var(--avina-bg);
+            color: var(--avina-dark); 
+            padding: 9px 10px;
+            font-family: var(--fonte-numeros);
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .prefix {
+            border-right: 1px solid var(--avina-light);
+        }
+
+        .suffix {
+            border-left: 1px solid var(--avina-light);
+        }
+
+        /* Bloco de resultados finais */
+        .results {
+            background-color: var(--avina-light); 
+            padding: 20px 18px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border: 2px solid var(--avina-accent);
+        }
+
+        .results .section-title {
+            margin-top: 0;
+            color: var(--avina-dark);
+            border-bottom-color: var(--avina-dark);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            align-items: center;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-item span {
+            font-family: var(--fonte-principal);
+            color: var(--avina-dark); 
+            font-weight: 600;
+        }
+
+        .result-item strong {
+            font-family: var(--fonte-numeros);
+            font-variant-numeric: lining-nums tabular-nums;
+            color: var(--avina-dark); 
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Etiqueta de destaque verde para valores de lucro e recebimento */
+        .destaque {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--avina-dark);
+        }
+
+        .destaque strong {
+            font-size: 1.2em;
+            background-color: rgba(0, 100, 0, 0.1); 
+            color: var(--teste-green); 
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .note {
+            font-family: var(--fonte-principal);
+            font-size: 0.88em;
+            color: var(--avina-medium);
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        /* Barra de Composição do Preço */
+        .visual-container {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 2px solid var(--avina-accent);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .visual-card {
+            background-color: var(--avina-bg);
+            border: 1px solid var(--avina-light);
+            border-radius: 10px;
+            padding: 14px 15px;
+            box-shadow: 0 2px 6px rgba(82, 63, 49, 0.05);
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .visual-title {
+            font-family: var(--fonte-principal);
+            font-size: 0.88em;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--avina-dark);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .comp-bar {
+            display: flex;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #e2ded8;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+            margin-bottom: 10px;
+        }
+
+        .comp-segment {
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .seg-custos { background-color: var(--avina-medium); }
+        .seg-taxas { background-color: var(--teste-red); }
+        .seg-lucro { background-color: var(--teste-green); }
+
+        .comp-legend {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.82em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        /* Seção de Fórmulas Utilizadas (Em linha única estrita) */
+        .formula-section {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 2px solid var(--avina-accent);
+            width: 100%;
+        }
+
+        .formula-main-title {
+            font-family: var(--fonte-principal);
+            font-size: 0.95em;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-align: center;
+            color: var(--avina-dark);
+            margin-bottom: 14px;
+        }
+
+        .formula-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .formula-card {
+            background-color: var(--avina-bg);
+            border: 1px solid var(--avina-light);
+            border-left: 4px solid var(--avina-accent);
+            border-radius: 8px;
+            padding: 10px 10px;
+            box-shadow: 0 2px 6px rgba(82, 63, 49, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 5px;
+            overflow: hidden;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .formula-card-tag {
+            font-family: var(--fonte-principal);
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--avina-medium);
+            align-self: flex-start;
+        }
+
+        .formula-expression {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--fonte-principal);
+            font-style: italic;
+            font-size: 0.73em;
+            color: var(--avina-dark);
+            width: 100%;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .formula-left {
+            margin-right: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .formula-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .formula-numerator {
+            padding-bottom: 2px;
+            border-bottom: 1.5px solid var(--avina-dark);
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .formula-denominator {
+            padding-top: 2px;
+            width: 100%;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
+        /* Ajustes de responsividade para telas de smartphones */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 8px 40px 8px;
+            }
+            .container {
+                padding: 22px 14px;
+            }
+            h1 {
+                font-size: 1.02em;
+            }
+            .form-group label {
+                font-size: 0.92em;
+            }
+            .input-wrapper input {
+                font-size: 16px; /* Trava em 16px para evitar zoom automático indesejado no Safari iOS[cite: 5, 16] */
+                padding: 8px 6px;
+            }
+            .prefix, .suffix {
+                padding: 8px 8px;
+            }
+            .result-item {
+                font-size: 0.98em;
+            }
+            .destaque strong {
+                font-size: 1.1em;
+                padding: 3px 7px;
+            }
+            .formula-card {
+                padding: 8px 6px;
+            }
+            .formula-expression {
+                font-size: 0.62em;
+            }
+            .formula-left {
+                margin-right: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Cabeçalho contendo a logomarca e o título oficial -->
+    <div class="header-container">
+        <img src="https://lh3.googleusercontent.com/d/1ypjQtK_hqimcc6mrn6c4azp1_4O_kOFJ" alt="Logo Avina" class="logo-img">
+        <h1>Calculadora de Precificação</h1>
+    </div>
+
+    <!-- Seção de Custos Fixos e Variáveis -->
+    <div class="section-title">CUSTOS</div>
+    
+    <div class="form-group">
+        <label for="peca">Peça:</label>
+        <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" inputmode="decimal" id="peca" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="embalagem">Embalagem:</label>
+        <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" inputmode="decimal" id="embalagem" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="frete">Frete:</label>
+        <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" inputmode="decimal" id="frete" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+        </div>
+    </div>
+
+    <!-- Seção de Taxas e Margens Percentuais -->
+    <div class="section-title">TAXAS</div>
+    
+    <div class="form-group">
+        <label for="maquininha">Maquininha:</label>
+        <div class="input-wrapper">
+            <input type="text" inputmode="decimal" id="maquininha" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+            <span class="suffix">%</span>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="lucro-desejado">Lucro Desejado:</label>
+        <div class="input-wrapper">
+            <input type="text" inputmode="decimal" id="lucro-desejado" style="color: var(--teste-green);" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+            <span class="suffix">%</span>
+        </div>
+    </div>
+
+    <!-- Seção de Exibição dos Resultados Calculados -->
+    <div class="results">
+        <div class="section-title">VALORES FINAIS</div>
+        <div class="result-item">
+            <span>Valor de Venda:</span>
+            <strong id="valor-venda">R$ 0,00</strong>
+        </div>
+        <div class="result-item destaque">
+            <span>Valor Recebido:</span>
+            <strong id="valor-recebido">R$ 0,00</strong>
+        </div>
+        <div class="result-item destaque" style="border-top: none; margin-top: 8px; padding-top: 0;">
+            <span>Lucro:</span>
+            <strong id="lucro-rs">R$ 0,00</strong>
+        </div>
+        <div class="result-item destaque" style="border-top: none; margin-top: 8px; padding-top: 0;">
+            <span>Lucro Percentual:</span>
+            <strong id="lucro-percentual">0,00%</strong>
+        </div>
+    </div>
+
+    <div class="note">
+        Os valores são calculados automaticamente.
+    </div>
+
+    <!-- Recurso Visual: Barra de Composição Proporcional -->
+    <div class="visual-container">
+        <div class="visual-card">
+            <div class="visual-title">Composição do Preço de Venda</div>
+            <div class="comp-bar">
+                <div id="bar-custos" class="comp-segment seg-custos" style="width: 0%;"></div>
+                <div id="bar-taxas" class="comp-segment seg-taxas" style="width: 0%;"></div>
+                <div id="bar-lucro" class="comp-segment seg-lucro" style="width: 0%;"></div>
+            </div>
+            <div class="comp-legend">
+                <div class="legend-item">
+                    <span class="legend-dot seg-custos"></span>
+                    <span>Custos: <b id="leg-custos">0%</b></span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot seg-taxas"></span>
+                    <span>Taxa: <b id="leg-taxas">0%</b></span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot seg-lucro"></span>
+                    <span>Lucro: <b id="leg-lucro">0%</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Fórmulas Matemáticas Utilizadas -->
+    <div class="formula-section">
+        <div class="formula-main-title">Fórmulas Utilizadas</div>
+        
+        <div class="formula-grid">
+            <div class="formula-card">
+                <div class="formula-card-tag">1. Preço de Venda</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Valor de venda =</span>
+                    <div class="formula-fraction">
+                        <span class="formula-numerator">Soma dos custos totais</span>
+                        <span class="formula-denominator">100% − Taxa do cartão(%) − Lucro desejado (%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">2. Recebimento Líquido</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Valor recebido =</span>
+                    <span>Valor de venda − Taxa da maquininha (%)</span>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">3. Lucro Real (R$)</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Lucro (R$) =</span>
+                    <span>Valor recebido − Custo total</span>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">4. Margem de Lucro (%)</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Lucro (%) =</span>
+                    <div class="formula-fraction">
+                        <span class="formula-numerator">Valor do Lucro</span>
+                        <span class="formula-denominator">Custo total</span>
+                    </div>
+                    <span style="margin-left: 5px; font-weight: 600;">· 100</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Função auxiliar para tratar e converter strings digitadas (com vírgula ou ponto) em números decimais
+    function parseInput(val) {
+        if (!val) return 0;
+        let limpo = String(val).trim();
+        if (limpo.includes(',') && limpo.includes('.')) {
+            limpo = limpo.replace(/\./g, '').replace(',', '.');
+        } else {
+            limpo = limpo.replace(',', '.');
+        }
+        const num = parseFloat(limpo);
+        return isNaN(num) ? 0 : num;
+    }
+
+    // Auto-completa as casas decimais com vírgula (ex: 5 vira 5,00) ao sair do campo
+    function formatarCampo(input) {
+        const num = parseInput(input.value);
+        input.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        calcular();
+    }
+
+    // Pula para o próximo campo de entrada ao pressionar a tecla Enter no teclado
+    function tratarEnter(event, input) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            formatarCampo(input);
+            const inputs = Array.from(document.querySelectorAll('.input-wrapper input'));
+            const index = inputs.indexOf(input);
+            if (index > -1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+                inputs[index + 1].select();
+            } else {
+                input.blur();
+            }
+        }
+    }
+
+    // Núcleo de cálculo financeiro e atualização dos elementos da tela
+    function calcular() {
+        const peca = parseInput(document.getElementById('peca').value);
+        const embalagem = parseInput(document.getElementById('embalagem').value);
+        const frete = parseInput(document.getElementById('frete').value);
+        
+        const maquininha = parseInput(document.getElementById('maquininha').value) / 100;
+        const lucroDesejado = parseInput(document.getElementById('lucro-desejado').value) / 100;
+
+        const somaCustos = peca + embalagem + frete;
+
+        let valorVenda = 0;
+        const divisor = 1 - maquininha - lucroDesejado;
+        
+        if (divisor > 0) {
+            valorVenda = somaCustos / divisor;
+        }
+
+        const valorRecebido = valorVenda * (1 - maquininha);
+        const lucroRs = valorRecebido - somaCustos;
+        
+        let lucroPercentual = 0;
+        if (valorVenda > 0) {
+            lucroPercentual = lucroRs / valorVenda;
+        }
+
+        const formatadorMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatadorPorcento = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2 });
+
+        if (divisor <= 0 && somaCustos > 0) {
+            document.getElementById('valor-venda').innerText = "Erro";
+            document.getElementById('valor-recebido').innerText = "-";
+            document.getElementById('lucro-rs').innerText = "-";
+            document.getElementById('lucro-percentual').innerText = "-";
+            atualizarBarra(0, 0, 0, 0);
+        } else {
+            document.getElementById('valor-venda').innerText = formatadorMoeda.format(valorVenda);
+            document.getElementById('valor-recebido').innerText = formatadorRecebido(valorRecebido);
+            document.getElementById('lucro-rs').innerText = formatadorMoeda.format(lucroRs);
+            document.getElementById('lucro-percentual').innerText = formatadorPorcento.format(lucroPercentual);
+            atualizarBarra(somaCustos, valorVenda * maquininha, lucroRs, valorVenda);
+        }
+    }
+
+    // Atualiza a largura e as porcentagens da barra de composição visual do preço
+    function atualizarBarra(custos, taxas, lucro, totalVenda) {
+        let pCustos = 0, pTaxas = 0, pLucro = 0;
+        if (totalVenda > 0) {
+            pCustos = Math.max(0, (custos / totalVenda) * 100);
+            pTaxas = Math.max(0, (taxas / totalVenda) * 100);
+            pLucro = Math.max(0, (lucro / totalVenda) * 100);
+        }
+
+        document.getElementById('bar-custos').style.width = pCustos + '%';
+        document.getElementById('bar-taxas').style.width = pTaxas + '%';
+        document.getElementById('bar-lucro').style.width = pLucro + '%';
+
+        document.getElementById('leg-custos').innerText = pCustos.toFixed(1) + '%';
+        document.getElementById('leg-taxas').innerText = pTaxas.toFixed(1) + '%';
+        document.getElementById('leg-lucro').innerText = pLucro.toFixed(1) + '%';
+    }
+
+    function formatadorRecebido(val) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+    }
+
+    // Inicialização universal compatível com Safari iOS (WebKit) e Chrome
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcular);
+    } else {
+        calcular();
+    }
+    window.addEventListener('load', calcular);
+</script>
+
+</body>
+</html>
