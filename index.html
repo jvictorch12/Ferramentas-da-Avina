@@ -133,7 +133,7 @@
             box-shadow: 0 0 0 3px rgba(133, 111, 86, 0.2);
         }
 
-        .input-wrapper input, .input-wrapper select {
+        .input-wrapper input {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
@@ -149,11 +149,6 @@
             outline: none;
             width: 100%;
             background: transparent;
-        }
-
-        .input-wrapper select {
-            text-align-last: right;
-            direction: rtl;
         }
 
         .prefix, .suffix {
@@ -214,7 +209,6 @@
             border-radius: 4px;
         }
 
-        /* Botão de Adicionar à Tabela */
         .btn-salvar-produto {
             background-color: var(--teste-green);
             color: white;
@@ -234,7 +228,6 @@
             background-color: #004d00;
         }
 
-        /* Seção da Tabela Resumo */
         .resumo-section {
             margin-top: 35px;
             padding-top: 20px;
@@ -267,9 +260,15 @@
 
         th, td {
             padding: 10px 8px;
-            text-align: left;
             border-bottom: 1px solid var(--avina-light);
         }
+
+        /* Alinhamentos específicos da tabela */
+        th:nth-child(1), td:nth-child(1) { text-align: left; }
+        th:nth-child(2), td:nth-child(2),
+        th:nth-child(3), td:nth-child(3),
+        th:nth-child(4), td:nth-child(4) { text-align: right; }
+        th:nth-child(5), td:nth-child(5) { text-align: center; }
 
         th {
             background-color: var(--avina-dark);
@@ -280,11 +279,13 @@
 
         td {
             font-family: var(--fonte-numeros);
+            font-variant-numeric: lining-nums tabular-nums; /* Alinha os números perfeitamente */
             color: var(--avina-dark);
         }
 
         td:first-child {
             font-family: var(--fonte-principal);
+            font-variant-numeric: normal;
             font-weight: bold;
         }
 
@@ -296,10 +297,99 @@
             color: var(--teste-red);
         }
 
+        /* Estilização original das Fórmulas[cite: 1] */
+        .formula-section {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 2px solid var(--avina-accent);
+            width: 100%;
+        }
+
+        .formula-main-title {
+            font-family: var(--fonte-principal);
+            font-size: 0.95em;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-align: center;
+            color: var(--avina-dark);
+            margin-bottom: 14px;
+        }
+
+        .formula-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .formula-card {
+            background-color: var(--avina-bg);
+            border: 1px solid var(--avina-light);
+            border-left: 4px solid var(--avina-accent);
+            border-radius: 8px;
+            padding: 10px 10px;
+            box-shadow: 0 2px 6px rgba(82, 63, 49, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 5px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .formula-card-tag {
+            font-family: var(--fonte-principal);
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--avina-medium);
+            align-self: flex-start;
+        }
+
+        .formula-expression {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--fonte-principal);
+            font-style: italic;
+            font-size: 0.73em;
+            color: var(--avina-dark);
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .formula-left {
+            margin-right: 6px;
+            font-weight: 600;
+        }
+
+        .formula-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .formula-numerator {
+            padding-bottom: 2px;
+            border-bottom: 1.5px solid var(--avina-dark);
+            width: 100%;
+        }
+
+        .formula-denominator {
+            padding-top: 2px;
+            width: 100%;
+            font-size: 0.95em;
+        }
+
         @media (max-width: 480px) {
             .container { padding: 22px 14px; }
             .input-wrapper input { font-size: 16px; }
             th, td { padding: 8px 5px; font-size: 0.8em; }
+            .formula-expression { font-size: 0.62em; }
         }
     </style>
 </head>
@@ -312,7 +402,6 @@
         <h1>Calculadora de Precificação</h1>
     </div>
 
-    <!-- Identificação do Produto -->
     <div class="form-group" style="background: var(--avina-light); padding: 10px; border-radius: 8px;">
         <label for="nome-produto" style="color: var(--avina-dark);">Nome do Produto:</label>
         <div class="input-wrapper" style="flex: 0.75;">
@@ -384,10 +473,8 @@
         </div>
     </div>
 
-    <!-- Botão para adicionar à tabela abaixo -->
     <button class="btn-salvar-produto" onclick="adicionarAolista()">+ Salvar Produto na Tabela</button>
 
-    <!-- Tabela Resumo Final -->
     <div class="resumo-section">
         <div class="resumo-title">Resumo dos Produtos Cadastrados</div>
         <div class="tabela-container">
@@ -395,10 +482,10 @@
                 <thead>
                     <tr>
                         <th>Produto</th>
-                        <th>Venda</th>
-                        <th>Lucro (R$)</th>
-                        <th>Lucro (%)</th>
-                        <th></th>
+                        <th style="text-align: right;">Venda</th>
+                        <th style="text-align: right;">Lucro (R$)</th>
+                        <th style="text-align: right;">Lucro (%)</th>
+                        <th style="text-align: center;"></th>
                     </tr>
                 </thead>
                 <tbody id="corpo-tabela">
@@ -407,6 +494,51 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="formula-section">
+        <div class="formula-main-title">Fórmulas Utilizadas</div>
+        
+        <div class="formula-grid">
+            <div class="formula-card">
+                <div class="formula-card-tag">1. Preço de Venda</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Valor de venda =</span>
+                    <div class="formula-fraction">
+                        <span class="formula-numerator">Soma dos custos totais</span>
+                        <span class="formula-denominator">100% − Taxa do cartão(%) − Lucro desejado (%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">2. Recebimento Líquido</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Valor recebido =</span>
+                    <span>Valor de venda − Taxa da maquininha (%)</span>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">3. Lucro Real (R$)</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Lucro (R$) =</span>
+                    <span>Valor recebido − Custo total</span>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">4. Margem de Lucro (%)</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Lucro (%) =</span>
+                    <div class="formula-fraction">
+                        <span class="formula-numerator">Valor do Lucro</span>
+                        <span class="formula-denominator">Custo total</span>
+                    </div>
+                    <span style="margin-left: 5px; font-weight: 600;">· 100</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -512,7 +644,6 @@
 
         atualizarTabela();
         
-        // Incrementa o nome para o próximo produto automaticamente (ex: Produto 2)
         const match = nome.match(/(\d+)$/);
         let proximoNome = "Novo Produto";
         if (match) {
@@ -538,9 +669,9 @@
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${prod.nome}</td>
-                <td>${prod.venda}</td>
-                <td>${prod.lucroRs}</td>
-                <td>${prod.lucroPercentual}</td>
+                <td style="text-align: right;">${prod.venda}</td>
+                <td style="text-align: right;">${prod.lucroRs}</td>
+                <td style="text-align: right;">${prod.lucroPercentual}</td>
                 <td style="text-align: center;"><button class="btn-excluir" onclick="removerItem(${index})" title="Excluir">🗑️</button></td>
             `;
             corpo.appendChild(tr);
