@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1FH7yT_QPjzx5d6LmSXo_wPwiuUbJeqoc">
+    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1FH7yT_QPjzx5d6LmSXo_wPwiuUbJeqoc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Avina">
+    <title>Calculadora Multi-Produtos - Avina</title>
+    <style>
+        @font-face {
+            font-family: 'Safira March Personal';
+            src: local('Safira March Personal'),
+                 local('SafiraMarchPersonal'),
+                 local('Safira March'),
+                 url('SafiraMarchPersonal.otf') format('opentype'),
+                 url('SafiraMarchPersonal.ttf') format('truetype'),
+                 url('safira-march.otf') format('opentype'),
+                 url('safira-march.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        :root {
+            --avina-dark: #523f31;
+            --avina-medium: #856f56;
+            --avina-accent: #b79f7b;
+            --avina-light: #c6bdae;
+            --avina-bg: #f5f3f0;
+            --avina-white: #ffffff;
+            
+            --teste-red: #8b0000;
+            --teste-green: #006400;
+
+            --fonte-principal: 'Safira March Personal', 'Georgia', serif;
+            --fonte-numeros: 'Georgia', 'Segoe UI', serif;
+        }
+
+        body {
+            font-family: var(--fonte-principal);
+            background-color: var(--avina-bg);
+            color: var(--avina-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 12px 50px 12px;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .container {
+            background-color: var(--avina-white);
+            padding: 30px 22px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(82, 63, 49, 0.15); 
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .logo-img {
+            max-width: 135px; 
+            max-height: 110px;
+            width: auto;
+            height: auto;
+            margin: 0 auto 12px auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-family: var(--fonte-principal);
+            font-size: 1.15em;
+            color: var(--avina-dark);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .section-title {
+            font-family: var(--fonte-principal);
+            font-weight: 800;
+            font-size: 1.2em;
+            margin-top: 24px;
+            margin-bottom: 14px;
+            border-bottom: 3px solid var(--avina-accent);
+            padding-bottom: 4px;
+            color: var(--avina-dark);
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            flex: 1;
+            font-family: var(--fonte-principal);
+            font-size: 1.05em;
+            font-weight: 600;
+            color: var(--avina-medium); 
+        }
+
+        .input-wrapper {
+            flex: 0.68;
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--avina-light);
+            border-radius: 6px;
+            background-color: var(--avina-white);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--avina-medium);
+            box-shadow: 0 0 0 3px rgba(133, 111, 86, 0.2);
+        }
+
+        .input-wrapper input {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            flex: 1;
+            border: none;
+            padding: 9px 8px;
+            text-align: right;
+            font-family: var(--fonte-numeros);
+            font-variant-numeric: lining-nums tabular-nums;
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--teste-red); 
+            outline: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        .prefix, .suffix {
+            background-color: var(--avina-bg);
+            color: var(--avina-dark); 
+            padding: 9px 10px;
+            font-family: var(--fonte-numeros);
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .prefix { border-right: 1px solid var(--avina-light); }
+        .suffix { border-left: 1px solid var(--avina-light); }
+
+        .results {
+            background-color: var(--avina-light); 
+            padding: 20px 18px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border: 2px solid var(--avina-accent);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            align-items: center;
+        }
+
+        .result-item:last-child { margin-bottom: 0; }
+
+        .result-item span {
+            font-family: var(--fonte-principal);
+            color: var(--avina-dark); 
+            font-weight: 600;
+        }
+
+        .result-item strong {
+            font-family: var(--fonte-numeros);
+            font-variant-numeric: lining-nums tabular-nums;
+            color: var(--avina-dark); 
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .destaque {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--avina-dark);
+        }
+
+        .destaque strong {
+            font-size: 1.2em;
+            background-color: rgba(0, 100, 0, 0.1); 
+            color: var(--teste-green); 
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .btn-salvar-produto {
+            background-color: var(--teste-green);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: var(--fonte-principal);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 100, 0, 0.2);
+            transition: background 0.2s;
+        }
+        .btn-salvar-produto:hover {
+            background-color: #004d00;
+        }
+
+        .btn-excel {
+            background-color: var(--avina-dark);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: var(--fonte-principal);
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 4px 10px rgba(82, 63, 49, 0.2);
+            transition: background 0.2s;
+        }
+        .btn-excel:hover {
+            background-color: var(--avina-medium);
+        }
+
+        .resumo-section {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 3px solid var(--avina-accent);
+            width: 100%;
+        }
+
+        .resumo-title {
+            font-size: 1.1em;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--avina-dark);
+        }
+
+        .tabela-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            background: var(--avina-white);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--avina-light);
+        }
+
+        th:nth-child(1), td:nth-child(1) { text-align: left; }
+        th:nth-child(2), td:nth-child(2),
+        th:nth-child(3), td:nth-child(3),
+        th:nth-child(4), td:nth-child(4) { text-align: right; }
+        th:nth-child(5), td:nth-child(5) { text-align: center; }
+
+        th {
+            background-color: var(--avina-dark);
+            color: var(--avina-white);
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        td {
+            font-family: var(--fonte-numeros);
+            font-variant-numeric: lining-nums tabular-nums;
+            color: var(--avina-dark);
+        }
+
+        td:first-child {
+            font-family: var(--fonte-principal);
+            font-variant-numeric: normal;
+            font-weight: bold;
+        }
+
+        .btn-excluir {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: var(--teste-red);
+        }
+
+        .formula-section {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 2px solid var(--avina-accent);
+            width: 100%;
+        }
+
+        .formula-main-title {
+            font-family: var(--fonte-principal);
+            font-size: 0.95em;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-align: center;
+            color: var(--avina-dark);
+            margin-bottom: 14px;
+        }
+
+        .formula-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .formula-card {
+            background-color: var(--avina-bg);
+            border: 1px solid var(--avina-light);
+            border-left: 4px solid var(--avina-accent);
+            border-radius: 8px;
+            padding: 10px 10px;
+            box-shadow: 0 2px 6px rgba(82, 63, 49, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 5px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .formula-card-tag {
+            font-family: var(--fonte-principal);
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--avina-medium);
+            align-self: flex-start;
+        }
+
+        .formula-expression {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--fonte-principal);
+            font-style: italic;
+            font-size: 0.73em;
+            color: var(--avina-dark);
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .formula-left {
+            margin-right: 6px;
+            font-weight: 600;
+        }
+
+        .formula-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .formula-numerator {
+            padding-bottom: 2px;
+            border-bottom: 1.5px solid var(--avina-dark);
+            width: 100%;
+        }
+
+        .formula-denominator {
+            padding-top: 2px;
+            width: 100%;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 22px 14px; }
+            .input-wrapper input { font-size: 16px; }
+            th, td { padding: 8px 5px; font-size: 0.8em; }
+            .formula-expression { font-size: 0.62em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="header-container">
+        <img src="https://lh3.googleusercontent.com/d/1ypjQtK_hqimcc6mrn6c4azp1_4O_kOFJ" alt="Logo Avina" class="logo-img">
+        <h1>Calculadora de Precificação</h1>
+    </div>
+
+    <div class="form-group" style="background: var(--avina-light); padding: 10px; border-radius: 8px;">
+        <label for="nome-produto" style="color: var(--avina-dark);">Nome do Produto:</label>
+        <div class="input-wrapper" style="flex: 0.75;">
+            <input type="text" id="nome-produto" value="Produto 1" style="text-align: left; color: var(--avina-dark);" placeholder="Ex: Bolsa Couro">
+        </div>
+    </div>
+
+    <div class="section-title">CUSTOS</div>
+    
+    <div class="form-group">
+        <label for="peca">Peça:</label>
+        <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" inputmode="decimal" id="peca" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="embalagem">Embalagem:</label>
+        <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" inputmode="decimal" id="embalagem" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="frete">Frete:</label>
+        <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" inputmode="decimal" id="frete" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+        </div>
+    </div>
+
+    <div class="section-title">TAXAS</div>
+    
+    <div class="form-group">
+        <label for="maquininha">Maquininha:</label>
+        <div class="input-wrapper">
+            <input type="text" inputmode="decimal" id="maquininha" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+            <span class="suffix">%</span>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="lucro-desejado">Lucro Desejado:</label>
+        <div class="input-wrapper">
+            <input type="text" inputmode="decimal" id="lucro-desejado" style="color: var(--teste-green);" value="0,00" onfocus="this.select()" oninput="calcular()" onblur="formatarCampo(this)" onkeydown="tratarEnter(event, this)">
+            <span class="suffix">%</span>
+        </div>
+    </div>
+
+    <div class="results">
+        <div class="section-title" style="margin-top:0;">VALORES FINAIS</div>
+        <div class="result-item">
+            <span>Valor de Venda:</span>
+            <strong id="valor-venda">R$ 0,00</strong>
+        </div>
+        <div class="result-item destaque">
+            <span>Valor Recebido:</span>
+            <strong id="valor-recebido">R$ 0,00</strong>
+        </div>
+        <div class="result-item destaque" style="border-top: none; margin-top: 8px; padding-top: 0;">
+            <span>Lucro:</span>
+            <strong id="lucro-rs">R$ 0,00</strong>
+        </div>
+        <div class="result-item destaque" style="border-top: none; margin-top: 8px; padding-top: 0;">
+            <span>Lucro Percentual:</span>
+            <strong id="lucro-percentual">0,00%</strong>
+        </div>
+    </div>
+
+    <button class="btn-salvar-produto" onclick="adicionarAolista()">+ Salvar Produto na Tabela</button>
+
+    <div class="resumo-section">
+        <div class="resumo-title">Resumo dos Produtos Cadastrados</div>
+        <div class="tabela-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th style="text-align: right;">Venda</th>
+                        <th style="text-align: right;">Lucro (R$)</th>
+                        <th style="text-align: right;">Lucro (%)</th>
+                        <th style="text-align: center;"></th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela">
+                    <tr id="linha-vazia">
+                        <td colspan="5" style="text-align: center; color: var(--avina-medium);">Nenhum produto adicionado ainda.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="btn-excel" onclick="exportarExcel()">📥 Baixar Planilha em Excel</button>
+    </div>
+
+    <div class="formula-section">
+        <div class="formula-main-title">Fórmulas Utilizadas</div>
+        
+        <div class="formula-grid">
+            <div class="formula-card">
+                <div class="formula-card-tag">1. Preço de Venda</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Valor de venda =</span>
+                    <div class="formula-fraction">
+                        <span class="formula-numerator">Soma dos custos totais</span>
+                        <span class="formula-denominator">100% − Taxa do cartão(%) − Lucro desejado (%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">2. Recebimento Líquido</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Valor recebido =</span>
+                    <span>Valor de venda − Taxa da maquininha (%)</span>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">3. Lucro Real (R$)</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Lucro (R$) =</span>
+                    <span>Valor recebido − Custo total</span>
+                </div>
+            </div>
+
+            <div class="formula-card">
+                <div class="formula-card-tag">4. Margem de Lucro (%)</div>
+                <div class="formula-expression">
+                    <span class="formula-left">Lucro (%) =</span>
+                    <div class="formula-fraction">
+                        <span class="formula-numerator">Valor do Lucro</span>
+                        <span class="formula-denominator">Custo total</span>
+                    </div>
+                    <span style="margin-left: 5px; font-weight: 600;">· 100</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let listaProdutos = [];
+
+    function parseInput(val) {
+        if (!val) return 0;
+        let limpo = String(val).trim();
+        if (limpo.includes(',') && limpo.includes('.')) {
+            limpo = limpo.replace(/\./g, '').replace(',', '.');
+        } else {
+            limpo = limpo.replace(',', '.');
+        }
+        const num = parseFloat(limpo);
+        return isNaN(num) ? 0 : num;
+    }
+
+    function formatarCampo(input) {
+        const num = parseInput(input.value);
+        input.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        calcular();
+    }
+
+    function tratarEnter(event, input) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            formatarCampo(input);
+            const inputs = Array.from(document.querySelectorAll('.input-wrapper input'));
+            const index = inputs.indexOf(input);
+            if (index > -1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+                inputs[index + 1].select();
+            } else {
+                input.blur();
+            }
+        }
+    }
+
+    function calcular() {
+        const peca = parseInput(document.getElementById('peca').value);
+        const embalagem = parseInput(document.getElementById('embalagem').value);
+        const frete = parseInput(document.getElementById('frete').value);
+        
+        const maquininha = parseInput(document.getElementById('maquininha').value) / 100;
+        const lucroDesejado = parseInput(document.getElementById('lucro-desejado').value) / 100;
+
+        const somaCustos = peca + embalagem + frete;
+
+        let valorVenda = 0;
+        const divisor = 1 - maquininha - lucroDesejado;
+        
+        if (divisor > 0) {
+            valorVenda = somaCustos / divisor;
+        }
+
+        const valorRecebido = valorVenda * (1 - maquininha);
+        const lucroRs = valorRecebido - somaCustos;
+        
+        let lucroPercentual = 0;
+        if (valorVenda > 0) {
+            lucroPercentual = lucroRs / valorVenda;
+        }
+
+        const formatadorMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatadorPorcento = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2 });
+
+        if (divisor <= 0 && somaCustos > 0) {
+            document.getElementById('valor-venda').innerText = "Erro";
+            document.getElementById('valor-recebido').innerText = "-";
+            document.getElementById('lucro-rs').innerText = "-";
+            document.getElementById('lucro-percentual').innerText = "-";
+        } else {
+            document.getElementById('valor-venda').innerText = formatadorMoeda.format(valorVenda);
+            document.getElementById('valor-recebido').innerText = formatadorMoeda.format(valorRecebido);
+            document.getElementById('lucro-rs').innerText = formatadorMoeda.format(lucroRs);
+            document.getElementById('lucro-percentual').innerText = formatadorPorcento.format(lucroPercentual);
+        }
+
+        return { valorVenda, lucroRs, lucroPercentual, divisor, somaCustos };
+    }
+
+    function adicionarAolista() {
+        const nome = document.getElementById('nome-produto').value.trim() || "Produto sem nome";
+        const pecaVal = parseInput(document.getElementById('peca').value);
+        const embVal = parseInput(document.getElementById('embalagem').value);
+        const freteVal = parseInput(document.getElementById('frete').value);
+        const maqVal = parseInput(document.getElementById('maquininha').value);
+        const lucroDesejVal = parseInput(document.getElementById('lucro-desejado').value);
+
+        const res = calcular();
+
+        if (res.divisor <= 0 && res.somaCustos > 0) {
+            alert("Erro: A soma das taxas e do lucro desejado atinge ou ultrapassa 100%. Ajuste os valores.");
+            return;
+        }
+
+        const formatadorMoeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatadorPorcento = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2 });
+
+        listaProdutos.push({
+            nome: nome,
+            pecaNum: pecaVal,
+            embNum: embVal,
+            freteNum: freteVal,
+            maqNum: maqVal / 100,
+            lucroDesejNum: lucroDesejVal / 100,
+            vendaNum: res.valorVenda,
+            lucroRsNum: res.lucroRs,
+            lucroPercNum: res.lucroPercentual,
+            vendaFormatada: formatadorMoeda.format(res.valorVenda),
+            lucroRsFormatado: formatadorMoeda.format(res.lucroRs),
+            lucroPercFormatado: formatadorPorcento.format(res.lucroPercentual)
+        });
+
+        atualizarTabela();
+        
+        const match = nome.match(/(\d+)$/);
+        let proximoNome = "Novo Produto";
+        if (match) {
+            let num = parseInt(match[1]) + 1;
+            proximoNome = nome.replace(/\d+$/, num);
+        } else {
+            proximoNome = "Produto 2";
+        }
+        document.getElementById('nome-produto').value = proximoNome;
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function atualizarTabela() {
+        const corpo = document.getElementById('corpo-tabela');
+        corpo.innerHTML = '';
+
+        if (listaProdutos.length === 0) {
+            corpo.innerHTML = `<tr id="linha-vazia"><td colspan="5" style="text-align: center; color: var(--avina-medium);">Nenhum produto adicionado ainda.</td></tr>`;
+            return;
+        }
+
+        listaProdutos.forEach((prod, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${prod.nome}</td>
+                <td style="text-align: right;">${prod.vendaFormatada}</td>
+                <td style="text-align: right;">${prod.lucroRsFormatado}</td>
+                <td style="text-align: right;">${prod.lucroPercFormatado}</td>
+                <td style="text-align: center;"><button class="btn-excluir" onclick="removerItem(${index})" title="Excluir">🗑️</button></td>
+            `;
+            corpo.appendChild(tr);
+        });
+    }
+
+    function removerItem(index) {
+        listaProdutos.splice(index, 1);
+        atualizarTabela();
+    }
+
+    function exportarExcel() {
+        if (listaProdutos.length === 0) {
+            alert("Não há produtos cadastrados para exportar.");
+            return;
+        }
+
+        const hoje = new Date();
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const ano = hoje.getFullYear();
+        const dataFormatada = `${dia}-${mes}-${ano}`;
+        const nomeArquivo = `Precificação de Peças - ${dataFormatada}.xls`;
+
+        let excelXML = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <!--[if gte mso 9]>
+                <xml>
+                    <x:ExcelWorkbook>
+                        <x:ExcelWorksheets>
+                            <x:ExcelWorksheet>
+                                <x:Name>Precificação de Peças</x:Name>
+                                <x:WorksheetOptions>
+                                    <x:DisplayGridlines/>
+                                </x:WorksheetOptions>
+                            </x:ExcelWorksheet>
+                        </x:ExcelWorksheets>
+                    </x:ExcelWorkbook>
+                </xml>
+                <![endif]-->
+                <style>
+                    table { border-collapse: collapse; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; }
+                    th { 
+                        background-color: #523f31; 
+                        color: #ffffff; 
+                        font-weight: bold; 
+                        border: 1px solid #3c2d22; 
+                        padding: 8px 12px; 
+                        text-align: center; 
+                    }
+                    td { 
+                        border: 1px solid #dcd5cc; 
+                        padding: 6px 10px; 
+                        color: #333333; 
+                    }
+                    .texto { mso-number-format:'\\@'; text-align: left; font-weight: bold; }
+                    .moeda { mso-number-format:'"R$"\\ #\\,##0\\.00'; text-align: right; }
+                    .porcento { mso-number-format:'0\\.00%'; text-align: right; }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Peça</th>
+                            <th>Embalagem</th>
+                            <th>Frete</th>
+                            <th>Taxa Cartão</th>
+                            <th>Lucro Desejado</th>
+                            <th>Valor de Venda</th>
+                            <th>Lucro (R$)</th>
+                            <th>Lucro Real (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        listaProdutos.forEach(prod => {
+            excelXML += `
+                <tr>
+                    <td class="texto">${prod.nome}</td>
+                    <td class="moeda">${prod.pecaNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="moeda">${prod.embNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="moeda">${prod.freteNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="porcento">${(prod.maqNum * 100).toFixed(2).replace('.', ',')}%</td>
+                    <td class="porcento">${(prod.lucroDesejNum * 100).toFixed(2).replace('.', ',')}%</td>
+                    <td class="moeda" style="font-weight: bold;">${prod.vendaNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="moeda" style="color: #006400; font-weight: bold;">${prod.lucroRsNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="porcento" style="color: #006400; font-weight: bold;">${(prod.lucroPercNum * 100).toFixed(2).replace('.', ',')}%</td>
+                </tr>
+            `;
+        });
+
+        excelXML += `
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([excelXML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", nomeArquivo);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    window.addEventListener('load', calcular);
+</script>
+
+</body>
+</html>
