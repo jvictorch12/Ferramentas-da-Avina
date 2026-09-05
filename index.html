@@ -1,4 +1,4 @@
-<!-- Versão 2.0 do Sistema - 05/09/26 - 15h40min -->
+<!-- Versão 3.0 do Sistema - 05/09/26 - 15h40min -->
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -228,6 +228,25 @@
             background-color: #004d00;
         }
 
+        .btn-excel {
+            background-color: var(--avina-dark);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: var(--fonte-principal);
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 4px 10px rgba(82, 63, 49, 0.2);
+            transition: background 0.2s;
+        }
+        .btn-excel:hover {
+            background-color: var(--avina-medium);
+        }
+
         .resumo-section {
             margin-top: 35px;
             padding-top: 20px;
@@ -263,7 +282,6 @@
             border-bottom: 1px solid var(--avina-light);
         }
 
-        /* Alinhamentos específicos da tabela */
         th:nth-child(1), td:nth-child(1) { text-align: left; }
         th:nth-child(2), td:nth-child(2),
         th:nth-child(3), td:nth-child(3),
@@ -279,7 +297,7 @@
 
         td {
             font-family: var(--fonte-numeros);
-            font-variant-numeric: lining-nums tabular-nums; /* Alinha os números perfeitamente */
+            font-variant-numeric: lining-nums tabular-nums;
             color: var(--avina-dark);
         }
 
@@ -297,7 +315,6 @@
             color: var(--teste-red);
         }
 
-        /* Estilização original das Fórmulas[cite: 1] */
         .formula-section {
             margin-top: 28px;
             padding-top: 18px;
@@ -495,6 +512,7 @@
                 </tbody>
             </table>
         </div>
+        <button class="btn-excel" onclick="exportarExcel()">📥 Baixar Planilha em Excel</button>
     </div>
 
     <div class="formula-section">
@@ -625,6 +643,12 @@
 
     function adicionarAolista() {
         const nome = document.getElementById('nome-produto').value.trim() || "Produto sem nome";
+        const pecaVal = parseInput(document.getElementById('peca').value);
+        const embVal = parseInput(document.getElementById('embalagem').value);
+        const freteVal = parseInput(document.getElementById('frete').value);
+        const maqVal = parseInput(document.getElementById('maquininha').value);
+        const lucroDesejVal = parseInput(document.getElementById('lucro-desejado').value);
+
         const res = calcular();
 
         if (res.divisor <= 0 && res.somaCustos > 0) {
@@ -637,9 +661,17 @@
 
         listaProdutos.push({
             nome: nome,
-            venda: formatadorMoeda.format(res.valorVenda),
-            lucroRs: formatadorMoeda.format(res.lucroRs),
-            lucroPercentual: formatadorPorcento.format(res.lucroPercentual)
+            pecaNum: pecaVal,
+            embNum: embVal,
+            freteNum: freteVal,
+            maqNum: maqVal / 100,
+            lucroDesejNum: lucroDesejVal / 100,
+            vendaNum: res.valorVenda,
+            lucroRsNum: res.lucroRs,
+            lucroPercNum: res.lucroPercentual,
+            vendaFormatada: formatadorMoeda.format(res.valorVenda),
+            lucroRsFormatado: formatadorMoeda.format(res.lucroRs),
+            lucroPercFormatado: formatadorPorcento.format(res.lucroPercentual)
         });
 
         atualizarTabela();
@@ -669,9 +701,9 @@
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${prod.nome}</td>
-                <td style="text-align: right;">${prod.venda}</td>
-                <td style="text-align: right;">${prod.lucroRs}</td>
-                <td style="text-align: right;">${prod.lucroPercentual}</td>
+                <td style="text-align: right;">${prod.vendaFormatada}</td>
+                <td style="text-align: right;">${prod.lucroRsFormatado}</td>
+                <td style="text-align: right;">${prod.lucroPercFormatado}</td>
                 <td style="text-align: center;"><button class="btn-excluir" onclick="removerItem(${index})" title="Excluir">🗑️</button></td>
             `;
             corpo.appendChild(tr);
@@ -681,6 +713,108 @@
     function removerItem(index) {
         listaProdutos.splice(index, 1);
         atualizarTabela();
+    }
+
+    function exportarExcel() {
+        if (listaProdutos.length === 0) {
+            alert("Não há produtos cadastrados para exportar.");
+            return;
+        }
+
+        const hoje = new Date();
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const ano = hoje.getFullYear();
+        const dataFormatada = `${dia}-${mes}-${ano}`;
+        const nomeArquivo = `Precificação de Peças - ${dataFormatada}.xls`;
+
+        let excelXML = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <!--[if gte mso 9]>
+                <xml>
+                    <x:ExcelWorkbook>
+                        <x:ExcelWorksheets>
+                            <x:ExcelWorksheet>
+                                <x:Name>Precificação de Peças</x:Name>
+                                <x:WorksheetOptions>
+                                    <x:DisplayGridlines/>
+                                </x:WorksheetOptions>
+                            </x:ExcelWorksheet>
+                        </x:ExcelWorksheets>
+                    </x:ExcelWorkbook>
+                </xml>
+                <![endif]-->
+                <style>
+                    table { border-collapse: collapse; font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; }
+                    th { 
+                        background-color: #523f31; 
+                        color: #ffffff; 
+                        font-weight: bold; 
+                        border: 1px solid #3c2d22; 
+                        padding: 8px 12px; 
+                        text-align: center; 
+                    }
+                    td { 
+                        border: 1px solid #dcd5cc; 
+                        padding: 6px 10px; 
+                        color: #333333; 
+                    }
+                    .texto { mso-number-format:'\\@'; text-align: left; font-weight: bold; }
+                    .moeda { mso-number-format:'"R$"\\ #\\,##0\\.00'; text-align: right; }
+                    .porcento { mso-number-format:'0\\.00%'; text-align: right; }
+                </style>
+            </head>
+            <body>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Peça</th>
+                            <th>Embalagem</th>
+                            <th>Frete</th>
+                            <th>Taxa Cartão</th>
+                            <th>Lucro Desejado</th>
+                            <th>Valor de Venda</th>
+                            <th>Lucro (R$)</th>
+                            <th>Lucro Real (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        listaProdutos.forEach(prod => {
+            excelXML += `
+                <tr>
+                    <td class="texto">${prod.nome}</td>
+                    <td class="moeda">${prod.pecaNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="moeda">${prod.embNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="moeda">${prod.freteNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="porcento">${(prod.maqNum * 100).toFixed(2).replace('.', ',')}%</td>
+                    <td class="porcento">${(prod.lucroDesejNum * 100).toFixed(2).replace('.', ',')}%</td>
+                    <td class="moeda" style="font-weight: bold;">${prod.vendaNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="moeda" style="color: #006400; font-weight: bold;">${prod.lucroRsNum.toFixed(2).replace('.', ',')}</td>
+                    <td class="porcento" style="color: #006400; font-weight: bold;">${(prod.lucroPercNum * 100).toFixed(2).replace('.', ',')}%</td>
+                </tr>
+            `;
+        });
+
+        excelXML += `
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([excelXML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", nomeArquivo);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     window.addEventListener('load', calcular);
